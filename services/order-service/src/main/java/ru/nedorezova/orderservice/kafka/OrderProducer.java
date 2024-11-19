@@ -20,5 +20,7 @@ public class OrderProducer {
                 .withPayload(order)
                 .setHeader(TOPIC, "order-topic")
                 .build();
+
+        template.send(message);
     }
 }
