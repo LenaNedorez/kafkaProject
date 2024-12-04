@@ -1,6 +1,7 @@
 package ru.nedorezova.notificationservice.kafka;
 
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import ru.nedorezova.notificationservice.entity.Order;
 
@@ -8,7 +9,7 @@ import ru.nedorezova.notificationservice.entity.Order;
 public class KafkaOrderListener {
 
     @KafkaListener(topics = "order-topic")
-    public void sendConfirmationOrderToEmail(Order order) {
-        System.out.println(order);
+    public void sendConfirmationOrderToEmail(Message<Order> orderMessage) {
+        System.out.println(orderMessage.getPayload());
     }
 }
