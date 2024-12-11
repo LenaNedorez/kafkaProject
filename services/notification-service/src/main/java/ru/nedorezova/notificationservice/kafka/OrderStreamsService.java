@@ -1,62 +1,26 @@
 package ru.nedorezova.notificationservice.kafka;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.KTable;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import ru.nedorezova.notificationservice.entity.Order;
-import ru.nedorezova.notificationservice.entity.Product;
 
 @Service
+@EnableBinding
 public class OrderStreamsService {
 
-    private final StreamsBuilder streamsBuilder;
-    private final StreamsConfig kafkaStreamsConfig;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public OrderStreamsService(StreamsBuilder streamsBuilder, StreamsConfig kafkaStreamsConfig) {
-        this.streamsBuilder = streamsBuilder;
-        this.kafkaStreamsConfig = kafkaStreamsConfig;
+    public OrderStreamsService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
-    @Bean
-    public void processOrderStream() {
-        KStream<String, String> orderStream = streamsBuilder.stream("order-topic");
+    @StreamListener(topics = "order-topic", containerFactory = "OrderKafkaContainerFactory")
+    public void sendConfirmationOrderToEmail(String orderEvent) throws JsonProcessingException {
 
-        orderStream.foreach((key, orderJson) -> {
-            try {
-                Order order = objectMapper.readValue(orderJson, Order.class);
-                System.out.println("Received order: " + order);
-            } catch (JsonProcessingException e) {
-                System.err.println("Error parsing JSON: " + e.getMessage());
-            }
-        });
+        Order order = objectMapper.readValue(orderEvent, Order.class);;
 
-        KTable<String, Double> orderTotals = orderStream
-                .mapValues(orderJson -> {
-                    try {
-                        Order order = objectMapper.readValue(orderJson, Order.class);
-                        return order.getProducts().stream()
-                                .mapToDouble(Product::getPrice)
-                                .sum();
-                    } catch (JsonProcessingException e) {
-                        System.err.println("Error parsing JSON: " + e.getMessage());
-                        return 0.0;
-                    }
-                })
-                .groupBy((key, total) -> key)
-                .reduce((agg, total) -> total);
-
-        orderTotals.toStream().to("order-totals");
-
-        try (KafkaStreams streams = new KafkaStreams(streamsBuilder.build(), kafkaStreamsConfig)) {
-            streams.start();
-        }
+        System.out.println(order);
     }
-
 }
