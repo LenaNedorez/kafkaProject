@@ -3,6 +3,8 @@ package ru.nedorezova.notificationservice.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Service;
 import ru.nedorezova.notificationservice.entity.Order;
 
@@ -16,10 +18,10 @@ public class OrderStreamsService {
         this.objectMapper = objectMapper;
     }
 
-    @StreamListener(topics = "order-topic", containerFactory = "OrderKafkaContainerFactory")
+    @StreamListener(value = "order-topic")
     public void sendConfirmationOrderToEmail(String orderEvent) throws JsonProcessingException {
 
-        Order order = objectMapper.readValue(orderEvent, Order.class);;
+        Order order = objectMapper.readValue(orderEvent, Order.class);
 
         System.out.println(order);
     }

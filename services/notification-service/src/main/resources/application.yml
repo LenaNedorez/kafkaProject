@@ -1,10 +1,19 @@
 server:
   port: 8079
 spring:
-  kafka:
-    consumer:
-      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-      #key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      #value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: '*'
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 0.0.0.0:8080
+          configuration:
+            auto-offset-reset: latest
+      bindings:
+        customChannel: #Channel name
+          destination: 0.0.0.0:8080      #Destination to which the message is sent (topic)
+          group: input-group-N
+          contentType: application/json
+          consumer:
+            max-attempts: 1
+            autoCommitOffset: true
+            autoCommitOnError: false
