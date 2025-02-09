@@ -6,6 +6,8 @@ import ru.nedorezova.orderservice.entity.Order;
 import ru.nedorezova.orderservice.kafka.OrderProducer;
 import ru.nedorezova.orderservice.repository.OrderRepository;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -16,5 +18,9 @@ public class OrderService {
     public void save(Order order) {
         orderRepository.save(order);
         orderProducer.sendMessage(order);
+    }
+
+    public List<Order> getOrders() {
+        return orderRepository.findAllOrders();
     }
 }

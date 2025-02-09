@@ -1,15 +1,21 @@
 package ru.nedorezova.orderservice.entity;
 
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+@Data
+@Entity
+@Table(name = "product")
 public class Product {
 
+    private int id;
     private String name;
     private Double price;
 }
