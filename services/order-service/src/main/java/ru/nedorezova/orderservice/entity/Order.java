@@ -1,7 +1,6 @@
 package ru.nedorezova.orderservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -11,11 +10,15 @@ import java.util.List;
 @Builder
 @Data
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order {
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String name;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
 }
